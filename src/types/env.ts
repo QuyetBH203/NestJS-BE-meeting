@@ -1,0 +1,18 @@
+export interface EnvPayload {
+  PORT: number
+
+  DB_URL: string
+
+  JWT_ACCESS_TOKEN_SECRET: string
+  JWT_ACCESS_TOKEN_EXPIRE: string
+  JWT_REFRESH_TOKEN_SECRET: string
+  JWT_REFRESH_TOKEN_EXPIRE: string
+
+  GOOGLE_CLIENT_ID: string
+  GOOGLE_CLIENT_SECRET: string
+
+  CLOUDINARY_NAME: string
+  CLOUDINARY_FOLDER: string
+  CLOUDINARY_API_KEY: string
+  CLOUDINARY_API_SECRET: string
+}

@@ -1,0 +1,238 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+ 
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+enum UserGender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum UserProvider {
+  GOOGLE
+}
+
+model User {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  provider     UserProvider
+  email        String       @unique
+  refreshToken String?
+  wsId         String?
+
+  profile                   Profile?
+  ownGroups                 Group[]
+  groups                    UsersOnGroups[]
+  friendshipFromMe          Friendship[]                   @relation("friendshipFromMe")
+  friendshipToMe            Friendship[]                   @relation("friendshipToMe")
+  friendshipRequestFromMe   FriendshipRequest[]            @relation("friendshipRequestFromMe")
+  friendshipRequestToMe     FriendshipRequest[]            @relation("friendshipRequestToMe")
+  directMessages            DirectMessage[]
+  directMessageChannels     UsersOnDirectMessageChannels[]
+  groupMessages             GroupMessage[]
+  directCallChannels        UsersOnDirectCallChannels[]
+  createdDirectCallChannels DirectCallChannel[]
+
+  @@map("users")
+}
+
+model Profile {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  avatarUrl String?
+  fullName  String?
+  phoneNumber String? @unique
+  gender    UserGender?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+
+  @@map("profiles")
+}
+
+model Group {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  name     String
+  imageUrl String
+
+  owner                     User                  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId                   String
+  users                     UsersOnGroups[]
+  channels                  GroupMessageChannel[]
+  inviteCode                String
+  inviteCodeNumberOfUses    Int?
+  inviteCodeMaxNumberOfUses Int                   @default(0)
+
+  @@map("groups")
+}
+
+model UsersOnGroups {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  isOwner Boolean
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String
+  group   Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String
+
+  @@id([userId, groupId])
+  @@map("users_groups")
+}
+
+model Friendship {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  fromUserId String
+  fromUser   User   @relation("friendshipFromMe", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId   String
+  toUser     User   @relation("friendshipToMe", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@id([fromUserId, toUserId])
+  @@map("friendships")
+}
+
+enum FriendshipRequestStatus {
+  PENDING
+  ACCEPTED
+  CANCELED
+}
+
+model FriendshipRequest {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  status     FriendshipRequestStatus @default(PENDING)
+  fromUserId String
+  fromUser   User                    @relation("friendshipRequestFromMe", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId   String
+  toUser     User                    @relation("friendshipRequestToMe", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@id([fromUserId, toUserId])
+  @@map("friendship-requests")
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  MISSED_CALL
+  CALL
+}
+
+model DirectMessageChannel {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  users    UsersOnDirectMessageChannels[]
+  messages DirectMessage[]
+
+  @@map("direct-message-channels")
+}
+
+model DirectMessage {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  type     MessageType
+  value    String
+  duration Int?
+
+  userId                 String
+  user                   User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  directMessageChannelId String
+  directMessageChannel   DirectMessageChannel @relation(fields: [directMessageChannelId], references: [id], onDelete: Cascade)
+
+  @@map("direct-messages")
+}
+
+model UsersOnDirectMessageChannels {
+  userId                 String
+  user                   User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  directMessageChannelId String
+  directMessageChannel   DirectMessageChannel @relation(fields: [directMessageChannelId], references: [id], onDelete: Cascade)
+
+  @@id([userId, directMessageChannelId])
+  @@map("users_direct-message-channels")
+}
+
+model GroupMessageChannel {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  name String
+
+  groupId  String
+  group    Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  messages GroupMessage[]
+
+  @@map("group-message-channels")
+}
+
+model GroupMessage {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  type  MessageType
+  value String
+
+  userId                String
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupMessageChannelId String
+  groupMessageChannel   GroupMessageChannel @relation(fields: [groupMessageChannelId], references: [id], onDelete: Cascade)
+
+  @@map("groups-messages")
+}
+
+model DirectCallChannel {
+  id         String    @id @default(uuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  acceptedAt DateTime?
+  isDeleted  Boolean   @default(false)
+
+  createdById String
+  createdBy   User                        @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  users       UsersOnDirectCallChannels[]
+
+  @@map("diret-call-channels")
+}
+
+model UsersOnDirectCallChannels {
+  userId              String
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  directCallChannelId String
+  directCallChannel   DirectCallChannel @relation(fields: [directCallChannelId], references: [id], onDelete: Cascade)
+
+  @@id([userId, directCallChannelId])
+  @@map("users_direct-call-channels")
+}
