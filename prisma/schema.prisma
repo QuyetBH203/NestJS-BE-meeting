@@ -19,6 +19,7 @@ enum UserGender {
 
 enum UserProvider {
   GOOGLE
+  FACEBOOK
 }
 
 model User {
@@ -28,9 +29,10 @@ model User {
   isDeleted Boolean  @default(false)
 
   provider     UserProvider
-  email        String       @unique
+  email        String?       @unique
   refreshToken String?
   wsId         String?
+  facebookId   String?       @unique
 
   profile                   Profile?
   ownGroups                 Group[]

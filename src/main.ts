@@ -1,13 +1,17 @@
 import { ValidationPipe } from "@nestjs/common"
-import { ConfigService } from "@nestjs/config"
 import { NestFactory } from "@nestjs/core"
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
 import helmet from "helmet"
 import { AppModule } from "./app.module"
-import { EnvPayload } from "./types/env"
+import * as fs from "fs"
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, {
+    httpsOptions: {
+      key: fs.readFileSync("../../../private_key.pem"),
+      cert: fs.readFileSync("../../../public_key.pem"),
+    },
+  })
   // const configService = app.get(ConfigService<EnvPayload>)
   // const PORT = configService.get("PORT")
 

@@ -15,4 +15,10 @@ export interface EnvPayload {
   CLOUDINARY_FOLDER: string
   CLOUDINARY_API_KEY: string
   CLOUDINARY_API_SECRET: string
+  FACEBOOK_APP_ID: string
+  FACEBOOK_APP_SECRET: string
+  AWS_ACCESS_KEY_ID: string
+  AWS_ACCESS_KEY_SECRECT: string
+  AWS_S3_REGION: string
+  AWS_S3_PUBLIC_BUCKET: string
 }
