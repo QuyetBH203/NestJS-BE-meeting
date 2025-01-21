@@ -119,6 +119,9 @@ export class UserController {
         fullName: {
           not: null,
         },
+        phoneNumber: {
+          not: null,
+        },
       },
       OR: keyword
         ? [
@@ -134,6 +137,14 @@ export class UserController {
               email: {
                 contains: keyword,
                 mode: "insensitive",
+              },
+            },
+            {
+              profile: {
+                phoneNumber: {
+                  contains: keyword,
+                  mode: "insensitive",
+                },
               },
             },
           ]

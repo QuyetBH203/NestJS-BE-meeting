@@ -28,6 +28,8 @@ import { PrismaModule } from "../prisma/prisma.module"
         CLOUDINARY_FOLDER: Joi.string().required(),
         CLOUDINARY_API_KEY: Joi.string().required(),
         CLOUDINARY_API_SECRET: Joi.string().required(),
+        FACEBOOK_APP_ID: Joi.string().required(),
+        FACEBOOK_APP_SECRET: Joi.string().required(),
       }),
     }),
     PrismaModule,

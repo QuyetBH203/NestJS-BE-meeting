@@ -15,4 +15,6 @@ export interface EnvPayload {
   CLOUDINARY_FOLDER: string
   CLOUDINARY_API_KEY: string
   CLOUDINARY_API_SECRET: string
+  FACEBOOK_APP_ID: string
+  FACEBOOK_APP_SECRET: string
 }
