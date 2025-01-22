@@ -11,6 +11,7 @@ import { SharedModule } from "./modules/shared/shared.module"
 import { UploadModule } from "./modules/upload/upload.module"
 import { UserModule } from "./modules/user/user.module"
 import { ConfigModule } from "@nestjs/config"
+import { StorageModule } from "./modules/storage/storage.module"
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ConfigModule } from "@nestjs/config"
     }),
     CallModule,
     UploadModule,
+    StorageModule,
   ],
   providers: [AppGateway],
 })

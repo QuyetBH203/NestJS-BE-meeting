@@ -111,12 +111,15 @@ export class UserController {
     @Query() { keyword, notInGroupId, page, take }: GetUserListDto,
     @CurrentUser({ field: "id" }) userId: string,
   ) {
-    let where: Prisma.UserWhereInput = {
+    const where: Prisma.UserWhereInput = {
       id: {
         not: userId,
       },
       profile: {
         fullName: {
+          not: null,
+        },
+        phoneNumber: {
           not: null,
         },
       },
@@ -134,6 +137,14 @@ export class UserController {
               email: {
                 contains: keyword,
                 mode: "insensitive",
+              },
+            },
+            {
+              profile: {
+                phoneNumber: {
+                  contains: keyword,
+                  mode: "insensitive",
+                },
               },
             },
           ]

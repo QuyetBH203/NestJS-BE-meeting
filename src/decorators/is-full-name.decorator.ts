@@ -2,7 +2,7 @@ import { ValidationOptions, registerDecorator } from "class-validator"
 import isFullName from "src/utils/isFullName"
 
 export function IsFullName(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: "isFullName",
       target: object.constructor,
