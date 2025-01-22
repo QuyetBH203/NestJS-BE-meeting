@@ -1,3 +1,6 @@
+import { IsString } from "class-validator"
+
 export class ProfileDto {
-  image: Express.Multer.File
+  @IsString()
+  code: string
 }

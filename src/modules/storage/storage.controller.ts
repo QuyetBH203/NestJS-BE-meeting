@@ -1,7 +1,14 @@
-import { Controller, Post, UploadedFile, UseInterceptors } from "@nestjs/common"
+import {
+  Body,
+  Controller,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from "@nestjs/common"
 import { StorageService } from "./storage.service"
 import { FileInterceptor } from "@nestjs/platform-express"
 import { ImageValidationPipe } from "src/pipe/image.pipe"
+import { ProfileDto } from "./dto/profile.dto"
 
 @Controller("storage")
 export class StorageController {
@@ -19,5 +26,11 @@ export class StorageController {
       file: image,
       file_name,
     })
+  }
+
+  @Post("delete")
+  async deleteImage(@Body() body: ProfileDto) {
+    console.log(body)
+    return await this.storageService.deleteFileFromPublicBucket(body.code)
   }
 }

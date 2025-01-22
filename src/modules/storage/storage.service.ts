@@ -1,6 +1,10 @@
 import { Injectable } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3"
 import { EnvPayload } from "src/types/env"
 import { UploadFileServiceAbstract } from "./UploadFileServiceAbstract"
 
@@ -38,5 +42,14 @@ export class StorageService implements UploadFileServiceAbstract {
       url: `https://${bucket_name}.s3.amazonaws.com/${key}`,
       key: key,
     }
+  }
+  async deleteFileFromPublicBucket(key: string): Promise<any> {
+    const response = await this.s3_client.send(
+      new DeleteObjectCommand({
+        Bucket: this.config_service.get("AWS_S3_PUBLIC_BUCKET"),
+        Key: key,
+      }),
+    )
+    return response
   }
 }
