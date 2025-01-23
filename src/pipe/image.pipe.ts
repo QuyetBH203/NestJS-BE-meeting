@@ -9,7 +9,8 @@ export class ImageValidationPipe implements PipeTransform {
   constructor(private readonly fieldName: string = "image") {}
   transform(file: Express.Multer.File) {
     if (!file) {
-      throw new UnprocessableEntityException([`${this.fieldName} is required`])
+      // throw new UnprocessableEntityException([`${this.fieldName} is required`])
+      return undefined
     }
     if (!["image/jpeg", "image/png"].includes(file.mimetype)) {
       throw new UnprocessableEntityException([
