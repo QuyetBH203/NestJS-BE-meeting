@@ -7,7 +7,9 @@ import {
   ParseUUIDPipe,
   Patch,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common"
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger"
 import { Prisma } from "@prisma/client"
@@ -17,13 +19,19 @@ import { UserGuard } from "../auth/guards/user.guard"
 import { PrismaService } from "../prisma/prisma.service"
 import { GetUserListDto } from "./dto/get-user-list.dto"
 import { UpdateUserProfileDto } from "./dto/update-user-profile.dto"
+import { FileInterceptor } from "@nestjs/platform-express"
+import { ImageValidationPipe } from "src/pipe/image.pipe"
+import { StorageService } from "../storage/storage.service"
 
 @ApiTags("User")
 @ApiBearerAuth()
 @UseGuards(UserGuard)
 @Controller("user")
 export class UserController {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly storageService: StorageService,
+  ) {}
 
   @ApiOperation({ summary: "Lấy profile người dùng hiện tại" })
   @Get("profile")
@@ -39,16 +47,32 @@ export class UserController {
 
   @ApiOperation({ summary: "Cập nhật thông tin profile" })
   @Patch("profile")
+  @UseInterceptors(FileInterceptor("avatar"))
   async updateProfile(
+    @UploadedFile(new ImageValidationPipe())
+    avatar: Express.Multer.File | undefined,
     @Body() data: UpdateUserProfileDto,
     @CurrentUser({ field: "id" }) id: string,
   ) {
+    let updatedData = { ...data }
+
+    if (avatar) {
+      const path = "uploads"
+      const file_name = avatar.originalname
+      const { url } = await this.storageService.uploadFileToPublicBucket(path, {
+        file: avatar,
+        file_name,
+      })
+      updatedData = { ...updatedData, avatarUrl: url }
+    }
+
     const profile = await this.prismaService.profile.update({
       where: {
         userId: id,
       },
-      data,
+      data: updatedData,
     })
+
     return profile
   }
 
@@ -82,6 +106,7 @@ export class UserController {
         },
       },
     })
+    console.log(user)
     if (!user) throw new BadRequestException("User doesn't exist")
     const directMessageChannel =
       await this.prismaService.directMessageChannel.findFirst({

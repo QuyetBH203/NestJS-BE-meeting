@@ -18,6 +18,8 @@ import {
   DeleteDirectMessageDto,
   DeleteGroupMessageDto,
 } from "./dto/delete-message.dto"
+import { userWs } from "./dto/userWs.dto"
+import { ImageDto } from "./dto/image.dto"
 
 @UseGuards(WsGuard)
 @WebSocketGateway()
@@ -54,6 +56,7 @@ export class MessageGateway {
       throw new BadRequestException(
         "Direct message channel doesn't exist or you don't have permission",
       )
+    console.log(directMessageChannel.users)
 
     const [directMessage] = await this.prismaSerive.$transaction([
       this.prismaSerive.directMessage.create({
@@ -73,10 +76,21 @@ export class MessageGateway {
         },
       }),
     ])
+    console.log(directMessage)
     directMessageChannel.users.forEach(
       ({ user: { wsId } }) =>
         wsId &&
         this.server.to(wsId).emit(WsEvent.CREATE_DIRECT_MESSAGE, directMessage),
+    )
+  }
+
+  @SubscribeMessage(WsEvent.SEND_IMAGES)
+  async sendImagesMessage(users: userWs[], images: ImageDto[]) {
+    console.log(users)
+    console.log(images)
+    users.forEach(
+      ({ user: { wsId } }) =>
+        wsId && this.server.to(wsId).emit(WsEvent.SEND_IMAGES, images),
     )
   }
 

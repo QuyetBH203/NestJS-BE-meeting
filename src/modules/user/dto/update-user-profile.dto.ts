@@ -5,11 +5,6 @@ import { IsEnum, IsOptional, IsString, IsUrl } from "class-validator"
 export class UpdateUserProfileDto {
   @ApiPropertyOptional()
   @IsOptional()
-  @IsUrl()
-  avatarUrl: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
   @IsString()
   fullName: string
 
@@ -22,5 +17,11 @@ export class UpdateUserProfileDto {
 
   @ApiPropertyOptional()
   @IsString()
+  @IsOptional()
   phoneNumber: string
+
+  @IsOptional()
+  @IsUrl()
+  @IsString()
+  avatarUrl: string
 }

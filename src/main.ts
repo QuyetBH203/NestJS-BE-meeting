@@ -6,17 +6,17 @@ import { AppModule } from "./app.module"
 import * as fs from "fs"
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    httpsOptions: {
-      key: fs.readFileSync("../../../private_key.pem"),
-      cert: fs.readFileSync("../../../public_key.pem"),
-    },
-  })
+  const app = await NestFactory.create(AppModule)
   // const configService = app.get(ConfigService<EnvPayload>)
   // const PORT = configService.get("PORT")
 
   app.enableShutdownHooks()
-  app.enableCors()
+  app.enableCors({
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: "Content-Type, Authorization",
+    credentials: true,
+  })
   app.use(helmet())
   app.useGlobalPipes(
     new ValidationPipe({
