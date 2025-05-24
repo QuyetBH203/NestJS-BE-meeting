@@ -46,6 +46,7 @@ model User {
   groupMessages             GroupMessage[]
   directCallChannels        UsersOnDirectCallChannels[]
   createdDirectCallChannels DirectCallChannel[]
+  directImages              DirectImage[]
 
   @@map("users")
 }
@@ -151,6 +152,8 @@ model DirectMessageChannel {
 
   users    UsersOnDirectMessageChannels[]
   messages DirectMessage[]
+  images   DirectImage[]
+
 
   @@map("direct-message-channels")
 }
@@ -237,4 +240,21 @@ model UsersOnDirectCallChannels {
 
   @@id([userId, directCallChannelId])
   @@map("users_direct-call-channels")
+}
+
+model DirectImage {
+  id        String  @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  imageUrl    String
+  imageKey    String
+
+  userId                 String
+  user                   User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  directMessageChannelId String
+  directMessageChannel   DirectMessageChannel @relation(fields: [directMessageChannelId], references: [id], onDelete: Cascade)
+
+  @@map("direct_image")
 }

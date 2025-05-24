@@ -106,6 +106,7 @@ export class UserController {
         },
       },
     })
+    console.log(user)
     if (!user) throw new BadRequestException("User doesn't exist")
     const directMessageChannel =
       await this.prismaService.directMessageChannel.findFirst({
