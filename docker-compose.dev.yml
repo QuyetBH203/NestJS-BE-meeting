@@ -39,3 +39,4 @@ networks:
   app-network:
     driver: bridge
 #docker-compose -f docker-compose.dev.yml up -d postgres
+#
